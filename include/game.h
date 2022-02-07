@@ -7,10 +7,16 @@ class Wordle {
   Wordle(const std::string&);
 
   int size();
-  void begin();
+  void BeginGame();
 
  private:
-  std::vector<std::string> word_list;
-  std::string answer;
+  static const int kGuessTime;
+  static const int kWordLenth;
+  static const int kWordTableWidth;
+  std::vector<std::string> word_list_;
+  std::string answer_;
+  std::vector<std::string> guessed_words_;  
+
+  void ShowWordsTable();
 };
 };  // namespace wordle

@@ -8,7 +8,7 @@ wordle: game.o main.o
 	g++ $(FMT_LINK_ARGS) $^ -o $@
 
 game.o: src/game.cc include/game.h
-	g++ -c -Iinclude $(FMT_LINK_ARGS) $< -o $@
+	g++ $(USER_DEFINED) -c -Iinclude $(FMT_LINK_ARGS) $< -o $@
 
 main.o: src/main.cc
 	g++ -c -Iinclude -o $@ $<
