@@ -1,5 +1,6 @@
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 namespace wordle {
 class Wordle {
@@ -15,7 +16,8 @@ class Wordle {
   static const int kWordTableWidth;
   std::vector<std::string> word_list_;
   std::string answer_;
-  std::vector<std::string> guessed_words_;  
+  std::unordered_map<char, int> answer_letter_;
+  std::vector<std::string> guessed_words_;
 
   void ShowWordsTable();
 };
