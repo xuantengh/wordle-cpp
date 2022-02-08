@@ -1,12 +1,12 @@
 # wordle-cpp
 Terminal-based [WORDLE](https://www.powerlanguage.co.uk/wordle/) game written in cpp.
 
-## Build
+## Build & Run
 
-This project depends on `fmt` library and for colorful text output C++11 supported compiler.
+This project depends on `fmt` library for colorful text output and C++11 supported compiler.
 
 ```bash
-# compiler
+# build 
 make
 # run
 ./wordle ./wordle-answers-alphabetical.txt
@@ -19,4 +19,3 @@ make
 ## TODO
 
 - Use `ncurses` TUI
-- Refactor and simplify code
