@@ -8,11 +8,16 @@
 
 #include "fmt/color.h"
 #include "fmt/core.h"
+// #include "ncurses.h"
 
 namespace wordle {
+// some constants
 const int Wordle::kGuessTime = 6;
 const int Wordle::kWordLenth = 5;
-const int Wordle::kWordTableWidth = 11;
+const int Wordle::kWordTableWidth = 15;
+const int Wordle::kWordTableHeight = 8;
+const int Wordle::kWindowWidth = 25;
+const int Wordle::kWindowHeight = 15;
 
 const std::vector<std::string> KeyBoardInfo::kKeyboard = {
     "qwertyuiop", "asdfghjkl", "zxcvbnm"};
@@ -39,6 +44,10 @@ Wordle::Wordle(const std::string& word_list_path) {
   }
 }
 
+Wordle::~Wordle() {
+  // TODO
+}
+
 int Wordle::size() { return word_list_.size(); }
 
 void Wordle::BeginGame() {
@@ -49,15 +58,18 @@ void Wordle::BeginGame() {
     answer_letter_[c]++;
   }
 
+  // initscr();
+
 #ifdef DEBUG
   fmt::print("The answer word is: {}\n", answer_);
+  // printw("The answer word is: %s\n", answer_);
 #endif
 
   std::string input;
   bool hit = false;
   for (int i = 0; i < kGuessTime; ++i) {
     ShowWordsTable();
-    ShowKeyBoard();
+    keyboard_info_.ShowKeyBoard();
     while (true) {
       fmt::print("[{}] Please type the word you guessed: ", i + 1);
       std::cin >> input;
@@ -88,28 +100,16 @@ void Wordle::ShowWordsTable() {
       if (word[i] == answer_[i]) {
         color = fmt::color::green;
         answer_letter[word[i]]--;
-        keyboard_info_.matched_letters.insert(word[i]);
-        keyboard_info_.unknown_letters.erase(word[i]);
-        keyboard_info_.include_letters.erase(word[i]);
+        keyboard_info_.match(word[i]);
       } else {
         if (answer_letter.find(word[i]) != answer_letter.end() &&
             answer_letter[word[i]] > 0) {  // answer contains word[i]
           color = fmt::color::orange;
           answer_letter[word[i]]--;
-          if (keyboard_info_.matched_letters.find(word[i]) ==
-              keyboard_info_.matched_letters.end()) {
-            keyboard_info_.include_letters.insert(word[i]);
-          }
-          keyboard_info_.unknown_letters.erase(word[i]);
+          keyboard_info_.include(word[i]);
         } else {
           color = fmt::color::gray;
-          if (keyboard_info_.include_letters.find(word[i]) ==
-                  keyboard_info_.include_letters.end() &&
-              keyboard_info_.matched_letters.find(word[i]) ==
-                  keyboard_info_.matched_letters.end()) {
-            keyboard_info_.exclude_letters.insert(word[i]);
-          }
-          keyboard_info_.unknown_letters.erase(word[i]);
+          keyboard_info_.exclude(word[i]);
         }
       }
       fmt::print(fmt::fg(color), "{} ", word[i]);
@@ -121,24 +121,42 @@ void Wordle::ShowWordsTable() {
 KeyBoardInfo::KeyBoardInfo() {
   for (const std::string& row : kKeyboard) {
     for (const char c : row) {
-      unknown_letters.insert(c);
+      unknown_letters_.insert(c);
     }
   }
 }
 
-void Wordle::ShowKeyBoard() {
+void KeyBoardInfo::match(const char c) {
+  matched_letters_.insert(c);
+  unknown_letters_.erase(c);
+  include_letters_.erase(c);
+}
+
+void KeyBoardInfo::include(const char c) {
+  if (matched_letters_.find(c) == matched_letters_.end()) {
+    include_letters_.insert(c);
+  }
+  unknown_letters_.erase(c);
+}
+
+void KeyBoardInfo::exclude(const char c) {
+  if (include_letters_.find(c) == include_letters_.end() &&
+      matched_letters_.find(c) == matched_letters_.end()) {
+    exclude_letters_.insert(c);
+  }
+  unknown_letters_.erase(c);
+}
+
+void KeyBoardInfo::ShowKeyBoard() {
   fmt::print("{:-^25}\n", "");
-  for (const std::string& row : keyboard_info_.kKeyboard) {
+  for (const std::string& row : kKeyboard) {
     for (const char c : row) {
       fmt::detail::color_type color = fmt::color::black;
-      if (keyboard_info_.exclude_letters.find(c) !=
-          keyboard_info_.exclude_letters.end()) {
+      if (exclude_letters_.find(c) != exclude_letters_.end()) {
         color = fmt::color::gray;
-      } else if (keyboard_info_.include_letters.find(c) !=
-                 keyboard_info_.include_letters.end()) {
+      } else if (include_letters_.find(c) != include_letters_.end()) {
         color = fmt::color::orange;
-      } else if (keyboard_info_.matched_letters.find(c) !=
-                 keyboard_info_.matched_letters.end()) {
+      } else if (matched_letters_.find(c) != matched_letters_.end()) {
         color = fmt::color::green;
       }
       fmt::print(fmt::fg(color), "{} ", c);

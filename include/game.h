@@ -9,17 +9,25 @@ class KeyBoardInfo {
   KeyBoardInfo();
   KeyBoardInfo(const KeyBoardInfo&) = delete;
 
+  void ShowKeyBoard();
+
+  void match(const char);
+  void include(const char);
+  void exclude(const char);
+
   static const std::vector<std::string> kKeyboard;
 
-  std::set<char> matched_letters;
-  std::set<char> include_letters;
-  std::set<char> exclude_letters;
-  std::set<char> unknown_letters;
+ private:
+  std::set<char> matched_letters_;
+  std::set<char> include_letters_;
+  std::set<char> exclude_letters_;
+  std::set<char> unknown_letters_;
 };
 
 class Wordle {
  public:
   Wordle(const std::string&);
+  ~Wordle();
   Wordle(const Wordle&) = delete;
 
   int size();
@@ -29,6 +37,9 @@ class Wordle {
   static const int kGuessTime;
   static const int kWordLenth;
   static const int kWordTableWidth;
+  static const int kWordTableHeight;
+  static const int kWindowWidth;
+  static const int kWindowHeight;
   std::vector<std::string> word_list_;
   std::string answer_;
   std::unordered_map<char, int> answer_letter_;
@@ -36,7 +47,6 @@ class Wordle {
   KeyBoardInfo keyboard_info_;
 
   void ShowWordsTable();
-  void ShowKeyBoard();
   void UpdateKeyBoard(const std::string&);
 };
 
